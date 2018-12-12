@@ -23,7 +23,6 @@ public class App
             verify.setArray(new Byte[n][t]);
             verify.nextArray(temp, 0);
             resultMap.put(t, verify.getFit());
-            verify.setFit(new ArrayList<Byte[][]>());
         }
         for (Map.Entry<Integer, List<Byte[][]>> entry : resultMap.entrySet()) {
             if (entry.getValue().size() > 0) {
