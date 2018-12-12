@@ -1,4 +1,4 @@
-package com.algorithm;
+package com.algorithm.dispatch;
 
 /**
  * 模式寻找
