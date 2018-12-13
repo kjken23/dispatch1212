@@ -22,14 +22,14 @@ public class DispatchUtils {
         return newArray;
     }
 
-    public static void deepCopy(Byte[][] copyFrom, Byte[][] copyTo) {
+    public static void deepCopy(Integer[][] copyFrom, Integer[][] copyTo) {
         for (int i = 0; i < copyFrom.length; i++) {
             copyTo[i] = copyFrom[i].clone();
         }
     }
 
-    public static Byte[][] initArray(int n, int t) {
-        Byte[][] arrayList = new Byte[n][t];
+    public static Integer[][] initArray(int n, int t) {
+        Integer[][] arrayList = new Integer[n][t];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < t; j++) {
                 if (j == 0) {

@@ -7,26 +7,26 @@ import java.util.List;
  * 验证
  */
 public class Verify {
-    private List<Byte[][]> fit = new ArrayList<>();
-    private Byte[][] array;
+    private List<Integer[][]> fit = new ArrayList<>();
+    private Integer[][] array;
 
-    public List<Byte[][]> getFit() {
+    public List<Integer[][]> getFit() {
         return fit;
     }
 
-    public void setFit(List<Byte[][]> fit) {
+    public void setFit(List<Integer[][]> fit) {
         this.fit = fit;
     }
 
-    public Byte[][] getArray() {
+    public Integer[][] getArray() {
         return array;
     }
 
-    public void setArray(Byte[][] array) {
+    public void setArray(Integer[][] array) {
         this.array = array;
     }
 
-    private static boolean judge(Byte[][] arrayList) {
+    private static boolean judge(Integer[][] arrayList) {
         if (arrayList.length == 0) {
             return false;
         }
@@ -35,7 +35,7 @@ public class Verify {
             int count1 = 0;
             for (int j = 0; j < arrayList[i].length; j++) {
                 int count2 = 0;
-                for (Byte[] array : arrayList) {
+                for (Integer[] array : arrayList) {
                     if (array[j] == 1) {
                         count2++;
                     }
@@ -51,14 +51,14 @@ public class Verify {
         return true;
     }
 
-    private boolean verify(Byte[][] arrayList, int n) {
+    private boolean verify(Integer[][] arrayList, int n) {
         if (arrayList.length == 0) {
             return false;
         }
         if (n == 0) {
             DispatchUtils.deepCopy(arrayList, array);
 //            System.out.println("当前验证调度方案：");
-//            for (Byte[] a : arrayList) {
+//            for (Integer[] a : arrayList) {
 //                System.out.println(Arrays.toString(a));
 //            }
 //            System.out.println("----------------------");
@@ -92,7 +92,7 @@ public class Verify {
                 flag = judge(arrayList);
 
                 if (!flag) {
-//                    for (Byte[] a : arrayList) {
+//                    for (Integer[] a : arrayList) {
 //                        System.out.println(Arrays.toString(a));
 //                    }
 //                    System.out.println("该情况下验证不通过\n");
@@ -102,7 +102,7 @@ public class Verify {
         }
 //        if(n == 0) {
 //            System.out.println("调度方案：");
-//            for (Byte[] a : arrayList) {
+//            for (Integer[] a : arrayList) {
 //                System.out.println(Arrays.toString(a));
 //            }
 //            System.out.println("验证通过！");
@@ -110,7 +110,7 @@ public class Verify {
         return true;
     }
 
-    public void nextArray(Byte[][] arrayList, int i) {
+    public void nextArray(Integer[][] arrayList, int i) {
         if (arrayList.length == 0) {
             return;
         }
@@ -120,7 +120,7 @@ public class Verify {
         } else {
             flag = verify(arrayList, 0);
             if (flag) {
-                Byte[][] copy = new Byte[arrayList.length][arrayList[0].length];
+                Integer[][] copy = new Integer[arrayList.length][arrayList[0].length];
                 DispatchUtils.deepCopy(arrayList, copy);
                 fit.add(copy);
             }
