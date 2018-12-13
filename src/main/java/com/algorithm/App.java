@@ -1,52 +1,62 @@
 package com.algorithm;
 
-import com.algorithm.dispatch.Verify;
+import com.algorithm.dispatch.FindPatten;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * 主程序
+ *
  * @author kj
  */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        Date start = new Date();
-        int n = 3;
-        int tStart = 12;
-        int tMax = 13;
-        Map<Integer, List<Byte[][]>> resultMap = new HashMap<>(tMax - tStart);
-        for (int t = tStart; t < tMax; t++) {
-            Verify verify = new Verify();
-            Byte[][] temp = Verify.initArray(n, t);
-            verify.setArray(new Byte[n][t]);
-            verify.nextArray(temp, 0);
-            resultMap.put(t, verify.getFit());
+public class App {
+    public static void main(String[] args) {
+        // 输入n和T
+        Scanner sc = new Scanner(System.in);
+        System.out.print("请输入n：");
+        int n = sc.nextInt();
+        System.out.print("请输入T：");
+        int t = sc.nextInt();
+        System.out.println("--------------------------");
+        if (n > t) {
+            System.out.println("请检查输入的n和T的值！");
+            return;
         }
-        for (Map.Entry<Integer, List<Byte[][]>> entry : resultMap.entrySet()) {
-            if (entry.getValue().size() > 0) {
-                System.out.println("T = " + entry.getKey() + "时： 共" + entry.getValue().size() + "种调度方案");
-//                for (Byte[][] arrayList : entry.getValue()) {
-//                    for (Byte[] a : arrayList) {
-//                        System.out.println(Arrays.toString(a));
-//                    }
-//                    System.out.println("------------------------");
-//                }
-            } else {
-                System.out.println("T = " + entry.getKey() + "时：");
-                System.out.println("该情况下没有符合条件的调度方案");
+
+        // 使用多线程计算整数分割问题
+        // 此处有一个疑问，多线程是否有必要，还没有做过测试
+        List<int[]> pattenList = new ArrayList<>();
+        ExecutorService executorService = new ThreadPoolExecutor(n,n,10, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
+        List<Future<Map<Integer,List<int[]> >>> futureList = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            FindPatten findPatten = new FindPatten(n - i, t - i);
+            futureList.add(executorService.submit(findPatten));
+        }
+        for (Future<Map<Integer,List<int[]> >> future : futureList) {
+            try {
+                for(Map.Entry<Integer, List<int[]>> entry : future.get().entrySet()) {
+                    // 对于少于n的结果补0
+                    if (entry.getKey() != n) {
+                        for(int[] ca:entry.getValue()) {
+                            int[] newca = new int[n];
+                            for (int i = 0; i < n - entry.getKey(); i++) {
+                                newca[i] = 0;
+                            }
+                            System.arraycopy(ca, 0, newca, n - entry.getKey(), ca.length);
+                            pattenList.add(newca);
+                        }
+                    } else {
+                        pattenList.addAll(entry.getValue());
+                    }
+                }
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
-//        Byte[][] temp = new ArrayList<>();
-//        Byte[] array1 = new Byte[] {1,0,1,0,1,0,0,0,0,0,0,0,0,0,0};
-//        Byte[] array2 = new Byte[] {1,0,0,1,0,0,1,0,0,0,0,0,0,0,0};
-//        Byte[] array3 = new Byte[] {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0};
-//        temp.add(array1);
-//        temp.add(array2);
-//        temp.add(array3);
-//        verify(temp,0);
-        Date end = new Date();
-        System.out.println("共耗时" + (end.getTime() - start.getTime()) / 1000 + "秒");
+        executorService.shutdown();
+        for(int[] a : pattenList) {
+            System.out.println(Arrays.toString(a));
+        }
     }
 }
