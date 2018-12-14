@@ -23,7 +23,7 @@ public class SelectPatten {
                 //索引右移，内部循环，自然排除已经选择的元素
                 combine(i + 1, k - 1, arr, result);
                 //tmpArr因为是临时存储的，上一个组合找出后就该释放空间，存储下一个元素继续拼接组合了
-                tmpArr.remove((Object) arr.get(i));
+                tmpArr.remove(arr.get(i));
             }
         } else {
             return;
