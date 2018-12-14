@@ -2,6 +2,7 @@ package com.algorithm;
 
 import com.algorithm.dispatch.DispatchUtils;
 import com.algorithm.dispatch.FindPatten;
+import com.algorithm.dispatch.NormalizePatten;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -56,13 +57,35 @@ public class App {
             }
         }
         executorService.shutdown();
-
         Map<Integer, Integer[]> allSortResult = new HashMap<>();
         for(Integer[] sort : pattenList) {
             DispatchUtils.allSort(sort, 0, sort.length - 1, allSortResult);
         }
+        List<Integer[]> normalizedList = new ArrayList<>();
         for(Map.Entry<Integer, Integer[]> entry : allSortResult.entrySet()) {
-            System.out.println(Arrays.toString(entry.getValue()));
+            Integer[] normalized = NormalizePatten.normalize(entry.getValue());
+            normalizedList.add(normalized);
+        }
+        Map<Integer, Integer[]> normalizedResult = new HashMap<>();
+        for(Integer[] normalized : normalizedList) {
+            boolean flag = true;
+            int hash = Arrays.hashCode(normalized);
+            for (int i = 0; i < normalized.length; i++) {
+                Integer[] temp = normalized.clone();
+                int tempHash = Arrays.hashCode(DispatchUtils.moveArrayElement(temp, i));
+                if(normalizedResult.containsKey(tempHash)) {
+                    flag = false;
+                     break;
+                }
+            }
+            if(!flag) {
+                continue;
+            }
+            normalizedResult.put(hash, normalized);
+        }
+        for(Integer[] array : normalizedResult.values()) {
+            System.out.println(Arrays.toString(array));
+            System.out.println("----------------------");
         }
     }
 }

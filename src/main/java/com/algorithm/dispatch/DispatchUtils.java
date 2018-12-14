@@ -69,4 +69,13 @@ public class DispatchUtils {
         array[a] = array[b];
         array[b] = tem;
     }
+
+    public static int getIndex(Integer[] arr, int value) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == value) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
