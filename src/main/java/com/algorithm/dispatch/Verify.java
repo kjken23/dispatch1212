@@ -1,29 +1,20 @@
 package com.algorithm.dispatch;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 验证
+ * @author kj
  */
 public class Verify {
-    private List<Integer[][]> fit = new ArrayList<>();
+    private int n;
+    private int t;
     private Integer[][] array;
 
-    public List<Integer[][]> getFit() {
-        return fit;
-    }
-
-    public void setFit(List<Integer[][]> fit) {
-        this.fit = fit;
-    }
-
-    public Integer[][] getArray() {
-        return array;
-    }
-
-    public void setArray(Integer[][] array) {
-        this.array = array;
+    public Verify(int n, int t) {
+        this.n = n;
+        this.t = t;
+        array = new Integer[n][t];
     }
 
     private static boolean judge(Integer[][] arrayList) {
@@ -110,20 +101,21 @@ public class Verify {
         return true;
     }
 
-    public void nextArray(Integer[][] arrayList, int i) {
-        if (arrayList.length == 0) {
-            return;
-        }
-        boolean flag = true;
-        if (i != arrayList.length - 1) {
-            nextArray(arrayList, i + 1);
-        } else {
-            flag = verify(arrayList, 0);
-            if (flag) {
-                Integer[][] copy = new Integer[arrayList.length][arrayList[0].length];
-                DispatchUtils.deepCopy(arrayList, copy);
-                fit.add(copy);
+    public Integer[][] formatAndVerify(List<Integer[]> list) {
+        Integer[][] martix = DispatchUtils.initArray(n,t);
+        for (int i = 0, len1 = list.size(); i < len1; i++) {
+            int pos = 1;
+            for(Integer integer : list.get(i)) {
+                pos += integer;
+                martix[i][pos % t] = 1;
+                pos++;
             }
+        }
+        boolean flag = verify(martix, 0);
+        if (flag) {
+            return martix;
+        } else {
+            return null;
         }
     }
 }
