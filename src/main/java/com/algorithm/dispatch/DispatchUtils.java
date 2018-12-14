@@ -1,7 +1,11 @@
 package com.algorithm.dispatch;
 
+import java.util.Arrays;
+import java.util.Map;
+
 /**
  * 公共工具类
+ *
  * @author kj
  */
 public class DispatchUtils {
@@ -40,5 +44,29 @@ public class DispatchUtils {
             }
         }
         return arrayList;
+    }
+
+    public static void allSort(Integer[] array, int begin, int end, Map<Integer, Integer[]> result) {
+        if (begin == end) {
+            Integer[] temp = array.clone();
+            int hash = Arrays.hashCode(temp);
+            if (!result.containsKey(hash)) {
+                result.put(hash, temp);
+            }
+            return;
+        }
+        //把子数组的第一个元素依次和第二个、第三个元素交换位置
+        for (int i = begin; i <= end; i++) {
+            swap(array, begin, i);
+            allSort(array, begin + 1, end, result);
+            //交换回来
+            swap(array, begin, i);
+        }
+    }
+
+    private static void swap(Integer[] array, int a, int b) {
+        int tem = array[a];
+        array[a] = array[b];
+        array[b] = tem;
     }
 }

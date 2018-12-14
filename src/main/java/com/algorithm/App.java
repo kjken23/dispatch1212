@@ -1,5 +1,6 @@
 package com.algorithm;
 
+import com.algorithm.dispatch.DispatchUtils;
 import com.algorithm.dispatch.FindPatten;
 
 import java.util.*;
@@ -26,20 +27,20 @@ public class App {
 
         // 使用多线程计算整数分割问题
         // 此处有一个疑问，多线程是否有必要，还没有做过测试
-        List<int[]> pattenList = new ArrayList<>();
+        List<Integer[]> pattenList = new ArrayList<>();
         ExecutorService executorService = new ThreadPoolExecutor(n,n,10, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
-        List<Future<Map<Integer,List<int[]> >>> futureList = new ArrayList<>();
+        List<Future<Map<Integer,List<Integer[]> >>> futureList = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             FindPatten findPatten = new FindPatten(n - i, t - i);
             futureList.add(executorService.submit(findPatten));
         }
-        for (Future<Map<Integer,List<int[]> >> future : futureList) {
+        for (Future<Map<Integer,List<Integer[]> >> future : futureList) {
             try {
-                for(Map.Entry<Integer, List<int[]>> entry : future.get().entrySet()) {
+                for(Map.Entry<Integer, List<Integer[]>> entry : future.get().entrySet()) {
                     // 对于少于n的结果补0
                     if (entry.getKey() != n) {
-                        for(int[] ca:entry.getValue()) {
-                            int[] newca = new int[n];
+                        for(Integer[] ca:entry.getValue()) {
+                            Integer[] newca = new Integer[n];
                             for (int i = 0; i < n - entry.getKey(); i++) {
                                 newca[i] = 0;
                             }
@@ -55,8 +56,13 @@ public class App {
             }
         }
         executorService.shutdown();
-        for(int[] a : pattenList) {
-            System.out.println(Arrays.toString(a));
+
+        Map<Integer, Integer[]> allSortResult = new HashMap<>();
+        for(Integer[] sort : pattenList) {
+            DispatchUtils.allSort(sort, 0, sort.length - 1, allSortResult);
+        }
+        for(Map.Entry<Integer, Integer[]> entry : allSortResult.entrySet()) {
+            System.out.println(Arrays.toString(entry.getValue()));
         }
     }
 }

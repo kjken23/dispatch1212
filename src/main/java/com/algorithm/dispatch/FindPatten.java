@@ -9,12 +9,12 @@ import java.util.concurrent.Callable;
 /**
  * 模式寻找
  */
-public class FindPatten implements Callable<Map<Integer,List<int[]> >> {
+public class FindPatten implements Callable<Map<Integer,List<Integer[]> >> {
     private int n;
     private int t;
-    private List<int[]> temp = new ArrayList<>();
-    private List<int[]> result = new ArrayList<>();
-    private Map<Integer,List<int[]> > resultMap = new HashMap<>();
+    private List<Integer[]> temp = new ArrayList<>();
+    private List<Integer[]> result = new ArrayList<>();
+    private Map<Integer,List<Integer[]> > resultMap = new HashMap<>();
 
     public FindPatten(int n, int t) {
         this.n = n;
@@ -37,40 +37,40 @@ public class FindPatten implements Callable<Map<Integer,List<int[]> >> {
         this.t = t;
     }
 
-    public Map<Integer, List<int[]>> getResultMap() {
+    public Map<Integer, List<Integer[]>> getResultMap() {
         return resultMap;
     }
 
-    public void setResultMap(Map<Integer, List<int[]>> resultMap) {
+    public void setResultMap(Map<Integer, List<Integer[]>> resultMap) {
         this.resultMap = resultMap;
     }
 
     public void split() {
         int m = t - n;
-        temp.add(new int[]{1,1});
-        temp.add(new int[]{2});
+        temp.add(new Integer[]{1,1});
+        temp.add(new Integer[]{2});
         if (m == 1) {
             return ;
         } else {
             for (int i = 3; i <= m; i++) {
                 int size=temp.size();
                 for(int j=0;j<size;j++){
-                    int[] ca=temp.get(j);
-                    int[] newca=new int[ca.length+1];
+                    Integer[] ca=temp.get(j);
+                    Integer[] newca=new Integer[ca.length+1];
                     newca[0]=1;
                     System.arraycopy(ca, 0, newca, 1, ca.length);
                     ca=null;
                     ca=newca;
                     temp.set(j, ca);
-                    int[] cs=merger(ca);
+                    Integer[] cs=merger(ca);
                     if(cs!=null){
                         temp.add(cs.clone());
                     }
                 }
-                temp.add(new int[]{i});
+                temp.add(new Integer[]{i});
             }
         }
-        for(int[] ca:temp){
+        for(Integer[] ca:temp){
             if (ca.length == n) {
                 result.add(ca);
             }
@@ -78,12 +78,12 @@ public class FindPatten implements Callable<Map<Integer,List<int[]> >> {
         resultMap.put(n, result);
     }
 
-    private int[] merger(int[] ca) {
+    private Integer[] merger(Integer[] ca) {
         if (ca.length <= 2) {
             return null;
         }
         if (ca[0] + ca[1] <= ca[2]) {
-            int[] rca = new int[ca.length - 1];
+            Integer[] rca = new Integer[ca.length - 1];
             rca[0] = ca[0] + ca[1] ;
             System.arraycopy(ca, 2, rca, 1, ca.length - 2);
             return rca;
@@ -92,7 +92,7 @@ public class FindPatten implements Callable<Map<Integer,List<int[]> >> {
     }
 
     @Override
-    public Map<Integer,List<int[]> > call() throws Exception {
+    public Map<Integer,List<Integer[]> > call() throws Exception {
         this.split();
         return this.getResultMap();
     }
