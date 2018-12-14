@@ -5,6 +5,7 @@ import java.util.Map;
 
 /**
  * 公共工具类
+ *
  * @author kj
  */
 public class DispatchUtils {
