@@ -18,7 +18,7 @@ public class App {
         if (k == 1) {
             for (int i = index; i < arr.size(); i++) {
                 tmpArr.add(arr.get(i));
-                if(ruleOutImpossible(tmpArr)) {
+                if (ruleOutImpossible(tmpArr)) {
                     List<Integer[]> tmp = new ArrayList<>(tmpArr);
                     Verify verify = new Verify(n, t);
                     Integer[][] matrix = verify.formatAndVerify(tmp);
@@ -43,17 +43,17 @@ public class App {
     }
 
     private static boolean ruleOutImpossible(List<Integer[]> list) {
-        if(list.size() == 0) {
+        if (list.size() == 0) {
             return false;
-        } else if(list.size() == 1){
+        } else if (list.size() == 1) {
             return true;
         } else {
             boolean flag = true;
             HashSet<Integer> set = new HashSet<>(Arrays.asList(list.get(0)));
             for (int i = 1; i < list.size(); i++) {
-                for(Integer integer: list.get(i)){
+                for (Integer integer : list.get(i)) {
                     flag = set.contains(integer);
-                    if(flag) {
+                    if (flag) {
                         return false;
                     }
                 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * 验证
+ *
  * @author kj
  */
 public class Verify {
@@ -102,10 +103,10 @@ public class Verify {
     }
 
     public Integer[][] formatAndVerify(List<Integer[]> list) {
-        Integer[][] martix = DispatchUtils.initArray(n,t);
+        Integer[][] martix = DispatchUtils.initArray(n, t);
         for (int i = 0, len1 = list.size(); i < len1; i++) {
             int pos = 1;
-            for(Integer integer : list.get(i)) {
+            for (Integer integer : list.get(i)) {
                 pos += integer;
                 martix[i][pos % t] = 1;
                 pos++;

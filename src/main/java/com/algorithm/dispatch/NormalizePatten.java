@@ -7,6 +7,7 @@ import java.util.Map;
 
 /**
  * 模式归一化
+ *
  * @author kj
  */
 public class NormalizePatten {
@@ -19,18 +20,18 @@ public class NormalizePatten {
 
     public static Map<Integer, Integer[]> removeRedundancy(List<Integer[]> normalizedList) {
         Map<Integer, Integer[]> normalizedResult = new HashMap<>();
-        for(Integer[] normalized : normalizedList) {
+        for (Integer[] normalized : normalizedList) {
             boolean flag = true;
             int hash = Arrays.hashCode(normalized);
             for (int i = 0; i < normalized.length; i++) {
                 Integer[] temp = normalized.clone();
                 int tempHash = Arrays.hashCode(DispatchUtils.moveArrayElement(temp, i));
-                if(normalizedResult.containsKey(tempHash)) {
+                if (normalizedResult.containsKey(tempHash)) {
                     flag = false;
                     break;
                 }
             }
-            if(!flag) {
+            if (!flag) {
                 continue;
             }
             normalizedResult.put(hash, normalized);
