@@ -18,11 +18,13 @@ public class App {
         if (k == 1) {
             for (int i = index; i < arr.size(); i++) {
                 tmpArr.add(arr.get(i));
-                List<Integer[]> tmp = new ArrayList<>(tmpArr);
-                Verify verify = new Verify(n, t);
-                Integer[][] matrix = verify.formatAndVerify(tmp);
-                if (matrix != null) {
-                    fit.add(matrix);
+                if(ruleOutImpossible(tmpArr)) {
+                    List<Integer[]> tmp = new ArrayList<>(tmpArr);
+                    Verify verify = new Verify(n, t);
+                    Integer[][] matrix = verify.formatAndVerify(tmp);
+                    if (matrix != null) {
+                        fit.add(matrix);
+                    }
                 }
                 tmpArr.remove(arr.get(i));
             }
@@ -31,13 +33,34 @@ public class App {
                 //tmpArr都是临时性存储一下
                 tmpArr.add(arr.get(i));
                 //索引右移，内部循环，自然排除已经选择的元素
-                combineAndVerify(i + 1, k - 1, arr, n, t);
+                if (ruleOutImpossible(tmpArr)) {
+                    combineAndVerify(i + 1, k - 1, arr, n, t);
+                }
                 //tmpArr因为是临时存储的，上一个组合找出后就该释放空间，存储下一个元素继续拼接组合了
-                tmpArr.remove((Object) arr.get(i));
+                tmpArr.remove(arr.get(i));
             }
-        } else {
-            return;
         }
+    }
+
+    private static boolean ruleOutImpossible(List<Integer[]> list) {
+        if(list.size() == 0) {
+            return false;
+        } else if(list.size() == 1){
+            return true;
+        } else {
+            boolean flag = true;
+            HashSet<Integer> set = new HashSet<>(Arrays.asList(list.get(0)));
+            for (int i = 1; i < list.size(); i++) {
+                for(Integer integer: list.get(i)){
+                    flag = set.contains(integer);
+                    if(flag) {
+                        return false;
+                    }
+                }
+                set.addAll(Arrays.asList(list.get(i)));
+            }
+        }
+        return true;
     }
 
     public static void main(String[] args) {
