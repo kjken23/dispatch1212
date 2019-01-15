@@ -101,7 +101,7 @@ public class Verify {
         return true;
     }
 
-    public Integer[][] formatAndVerify(List<Integer[]> list) {
+    public List<Integer[]> formatAndVerify(List<Integer[]> list) {
         Integer[][] martix = DispatchUtils.initArray(n,t);
         for (int i = 0, len1 = list.size(); i < len1; i++) {
             int pos = 1;
@@ -113,7 +113,7 @@ public class Verify {
         }
         boolean flag = verify(martix, 0);
         if (flag) {
-            return martix;
+            return list;
         } else {
             return null;
         }
