@@ -5,7 +5,6 @@ import com.algorithm.dispatch.FindPatten;
 import com.algorithm.dispatch.NormalizePatten;
 import com.algorithm.dispatch.Verify;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -16,7 +15,7 @@ import java.util.concurrent.*;
  */
 public class App {
     private static List<Integer[]> tmpArr = new ArrayList<>();
-    private static List<BigInteger[]> fit = new ArrayList<>();
+    private static List<Long[]> fit = new ArrayList<>();
 
     private static void combineAndVerify(int index, int k, List<Integer[]> arr, int n, int t) {
         if (k == 1) {
@@ -25,7 +24,7 @@ public class App {
                 if (ruleOutImpossible(tmpArr)) {
                     List<Integer[]> tmp = new ArrayList<>(tmpArr);
                     Verify verify = new Verify(n, t);
-                    BigInteger[] matrix = verify.formatAndVerify(tmp);
+                    Long[] matrix = verify.formatAndVerify(tmp);
                     if (matrix != null) {
                         fit.add(matrix);
                     }

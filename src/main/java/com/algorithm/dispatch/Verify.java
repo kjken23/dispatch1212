@@ -1,6 +1,5 @@
 package com.algorithm.dispatch;
 
-import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -11,31 +10,32 @@ import java.util.List;
 public class Verify {
     private int n;
     private int t;
-    private BigInteger[] array;
+    private Long[] array;
 
     public Verify(int n, int t) {
         this.n = n;
         this.t = t;
-        array = new BigInteger[n];
+        array = new Long[n];
     }
 
-    private boolean judge(BigInteger[] arrayList) {
+    private boolean judge(Long[] arrayList) {
         if (arrayList.length == 0) {
             return false;
         }
         boolean flag = true;
         for (int i = 0; i < n; i++) {
             int count = 0;
-            BigInteger others = BigInteger.valueOf(0L);
+            Long others = 0L;
             for (int j = 0; j < n; j++) {
                 if (j == i) {
                     continue;
                 }
-                others = others.or(arrayList[j]);
+                others = others | arrayList[j];
             }
             for (int j = t; j > 0; j--) {
-                BigInteger mask = BigInteger.valueOf(1 << (j - 1));
-                if (arrayList[i].and(mask).and(others.not().and(mask)).compareTo(BigInteger.ZERO) > 0) {
+                long mask = (long) (1 << (j - 1));
+                long result = (arrayList[i] & mask)&((~others) & mask);
+                if (result > 0L) {
                     count++;
                 }
             }
@@ -46,7 +46,7 @@ public class Verify {
         return true;
     }
 
-    private boolean verify(BigInteger[] arrayList, int n) {
+    private boolean verify(Long[] arrayList, int n) {
         if (arrayList.length == 0) {
             return false;
         }
@@ -105,7 +105,7 @@ public class Verify {
         return true;
     }
 
-    public BigInteger[] formatAndVerify(List<Integer[]> list) {
+    public Long[] formatAndVerify(List<Integer[]> list) {
         char[][] tempMartix = DispatchUtils.initArray(n, t);
         for (int i = 0, len1 = list.size(); i < len1; i++) {
             int pos = 1;
@@ -115,9 +115,9 @@ public class Verify {
                 pos++;
             }
         }
-        BigInteger[] martix = new BigInteger[n];
+        Long[] martix = new Long[n];
         for (int i = 0; i < tempMartix.length; i++) {
-            martix[i] = new BigInteger(String.valueOf(tempMartix[i]), 2);
+            martix[i] = Long.valueOf(String.valueOf(tempMartix[i]), 2);
         }
         boolean flag = verify(martix, 0);
         if (flag) {

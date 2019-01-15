@@ -86,4 +86,11 @@ public class DispatchUtils {
         BigInteger mask = BigInteger.valueOf((2 << t) - 1);
         return right.or(left).and(mask);
     }
+
+    public static Long rotateRight(long i, int distance, int t) {
+        long right = i >> distance;
+        long left = i << (t - distance);
+        long mask = ((2 << t) - 1);
+        return (right | left) & mask;
+    }
 }
