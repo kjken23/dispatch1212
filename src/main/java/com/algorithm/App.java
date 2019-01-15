@@ -1,7 +1,11 @@
 package com.algorithm;
 
-import com.algorithm.dispatch.*;
+import com.algorithm.dispatch.DispatchUtils;
+import com.algorithm.dispatch.FindPatten;
+import com.algorithm.dispatch.NormalizePatten;
+import com.algorithm.dispatch.Verify;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -12,7 +16,7 @@ import java.util.concurrent.*;
  */
 public class App {
     private static List<Integer[]> tmpArr = new ArrayList<>();
-    private static List<Integer[][]> fit = new ArrayList<>();
+    private static List<BigInteger[]> fit = new ArrayList<>();
 
     private static void combineAndVerify(int index, int k, List<Integer[]> arr, int n, int t) {
         if (k == 1) {
@@ -21,7 +25,7 @@ public class App {
                 if (ruleOutImpossible(tmpArr)) {
                     List<Integer[]> tmp = new ArrayList<>(tmpArr);
                     Verify verify = new Verify(n, t);
-                    Integer[][] matrix = verify.formatAndVerify(tmp);
+                    BigInteger[] matrix = verify.formatAndVerify(tmp);
                     if (matrix != null) {
                         fit.add(matrix);
                     }
@@ -151,6 +155,5 @@ public class App {
         } else {
             System.out.println("共耗时" + total / 1000 + "秒");
         }
-
     }
 }

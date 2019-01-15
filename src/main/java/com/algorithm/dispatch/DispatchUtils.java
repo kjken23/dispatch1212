@@ -1,5 +1,6 @@
 package com.algorithm.dispatch;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -32,14 +33,14 @@ public class DispatchUtils {
         }
     }
 
-    public static Integer[][] initArray(int n, int t) {
-        Integer[][] arrayList = new Integer[n][t];
+    public static char[][] initArray(int n, int t) {
+        char[][] arrayList = new char[n][t];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < t; j++) {
                 if (j == 0) {
-                    arrayList[i][j] = 1;
+                    arrayList[i][j] = '1';
                 } else {
-                    arrayList[i][j] = 0;
+                    arrayList[i][j] = '0';
                 }
             }
         }
@@ -79,5 +80,10 @@ public class DispatchUtils {
         return -1;
     }
 
-
+    public static BigInteger rotateRight(BigInteger i, int distance, int t) {
+        BigInteger right = i.shiftRight(distance);
+        BigInteger left = i.shiftLeft(t - distance);
+        BigInteger mask = BigInteger.valueOf((2 << t) - 1);
+        return right.or(left).and(mask);
+    }
 }

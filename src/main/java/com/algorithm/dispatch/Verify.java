@@ -1,5 +1,6 @@
 package com.algorithm.dispatch;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -10,45 +11,47 @@ import java.util.List;
 public class Verify {
     private int n;
     private int t;
-    private Integer[][] array;
+    private BigInteger[] array;
 
     public Verify(int n, int t) {
         this.n = n;
         this.t = t;
-        array = new Integer[n][t];
+        array = new BigInteger[n];
     }
 
-    private static boolean judge(Integer[][] arrayList) {
+    private boolean judge(BigInteger[] arrayList) {
         if (arrayList.length == 0) {
             return false;
         }
         boolean flag = true;
-        for (int i = 0; i < arrayList.length; i++) {
-            int count1 = 0;
-            for (int j = 0; j < arrayList[i].length; j++) {
-                int count2 = 0;
-                for (Integer[] array : arrayList) {
-                    if (array[j] == 1) {
-                        count2++;
-                    }
+        for (int i = 0; i < n; i++) {
+            int count = 0;
+            BigInteger others = BigInteger.valueOf(0L);
+            for (int j = 0; j < n; j++) {
+                if (j == i) {
+                    continue;
                 }
-                if (count2 == 1 && arrayList[i][j] == 1) {
-                    count1++;
+                others = others.or(arrayList[j]);
+            }
+            for (int j = t; j > 0; j--) {
+                BigInteger mask = BigInteger.valueOf(1 << (j - 1));
+                if (arrayList[i].and(mask).and(others.not().and(mask)).compareTo(BigInteger.ZERO) > 0) {
+                    count++;
                 }
             }
-            if (count1 < 1) {
+            if (count < 1) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean verify(Integer[][] arrayList, int n) {
+    private boolean verify(BigInteger[] arrayList, int n) {
         if (arrayList.length == 0) {
             return false;
         }
         if (n == 0) {
-            DispatchUtils.deepCopy(arrayList, array);
+            array = arrayList.clone();
 //            System.out.println("当前验证调度方案：");
 //            for (Integer[] a : arrayList) {
 //                System.out.println(Arrays.toString(a));
@@ -57,12 +60,12 @@ public class Verify {
         }
         boolean flag = true;
         if (n != arrayList.length - 1) {
-            for (int i = 0; i < arrayList[0].length + 1; i++) {
+            for (int i = 0; i < t + 1; i++) {
                 if (i > 0) {
                     arrayList = array;
-                    arrayList[n] = DispatchUtils.moveArrayElement(arrayList[n], i);
+                    arrayList[n] = DispatchUtils.rotateRight(arrayList[n], i, t);
                 }
-                if (i == arrayList[0].length) {
+                if (i == t) {
 //                    System.out.println("完成第" + (n + 1) + "层");
                     break;
                 }
@@ -72,12 +75,12 @@ public class Verify {
                 }
             }
         } else {
-            for (int i = 0; i < arrayList[0].length + 1; i++) {
+            for (int i = 0; i < t + 1; i++) {
                 if (i > 0) {
                     arrayList = array;
-                    arrayList[n] = DispatchUtils.moveArrayElement(arrayList[n], i);
+                    arrayList[n] = DispatchUtils.rotateRight(arrayList[n], i, t);
                 }
-                if (i == arrayList[0].length) {
+                if (i == t) {
 //                    System.out.println("完成最内层");
                     break;
                 }
@@ -102,15 +105,19 @@ public class Verify {
         return true;
     }
 
-    public Integer[][] formatAndVerify(List<Integer[]> list) {
-        Integer[][] martix = DispatchUtils.initArray(n, t);
+    public BigInteger[] formatAndVerify(List<Integer[]> list) {
+        char[][] tempMartix = DispatchUtils.initArray(n, t);
         for (int i = 0, len1 = list.size(); i < len1; i++) {
             int pos = 1;
             for (Integer integer : list.get(i)) {
                 pos += integer;
-                martix[i][pos % t] = 1;
+                tempMartix[i][pos % t] = '1';
                 pos++;
             }
+        }
+        BigInteger[] martix = new BigInteger[n];
+        for (int i = 0; i < tempMartix.length; i++) {
+            martix[i] = new BigInteger(String.valueOf(tempMartix[i]), 2);
         }
         boolean flag = verify(martix, 0);
         if (flag) {
