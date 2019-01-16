@@ -17,17 +17,14 @@ public class App {
     private static List<Integer[]> tmpArr = new ArrayList<>();
     private static List<Long[]> fit = new ArrayList<>();
 
-    private static void combineAndVerify(int index, int k, List<Integer[]> arr, int n, int t) {
+    private static void combineAndVerify(final ExecutorService executorService, List<Future<Long[]>> futureList, int index, int k, List<Integer[]> arr, int n, int t) {
         if (k == 1) {
             for (int i = index; i < arr.size(); i++) {
                 tmpArr.add(arr.get(i));
                 if (ruleOutImpossible(tmpArr)) {
                     List<Integer[]> tmp = new ArrayList<>(tmpArr);
-                    Verify verify = new Verify(n, t);
-                    Long[] matrix = verify.formatAndVerify(tmp);
-                    if (matrix != null) {
-                        fit.add(matrix);
-                    }
+                    Verify verify = new Verify(n, t, tmp);
+                    futureList.add(executorService.submit(verify));
                 }
                 tmpArr.remove(arr.get(i));
             }
@@ -37,7 +34,7 @@ public class App {
                 tmpArr.add(arr.get(i));
                 //索引右移，内部循环，自然排除已经选择的元素
                 if (ruleOutImpossible(tmpArr)) {
-                    combineAndVerify(i + 1, k - 1, arr, n, t);
+                    combineAndVerify(executorService, futureList, i + 1, k - 1, arr, n, t);
                 }
                 //tmpArr因为是临时存储的，上一个组合找出后就该释放空间，存储下一个元素继续拼接组合了
                 tmpArr.remove(arr.get(i));
@@ -83,11 +80,11 @@ public class App {
         // 使用多线程计算整数分割问题
         // 此处有一个疑问，多线程是否有必要，还没有做过测试
         List<Integer[]> pattenList = new ArrayList<>();
-        ExecutorService executorService = new ThreadPoolExecutor(n, n, 10, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
+        ExecutorService findPattenExecutorService = new ThreadPoolExecutor(n, n, 10, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
         List<Future<Map<Integer, List<Integer[]>>>> futureList = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             FindPatten findPatten = new FindPatten(n - i, t - i);
-            futureList.add(executorService.submit(findPatten));
+            futureList.add(findPattenExecutorService.submit(findPatten));
         }
         for (Future<Map<Integer, List<Integer[]>>> future : futureList) {
             try {
@@ -110,7 +107,7 @@ public class App {
                 e.printStackTrace();
             }
         }
-        executorService.shutdown();
+        findPattenExecutorService.shutdown();
 
         System.out.println("----------整数划分完毕------------");
 
@@ -137,9 +134,24 @@ public class App {
         //对归一化/去除冗余的结果进行组合并进行验证
         Collection<Integer[]> resultCollection = normalizedResult.values();
         List<Integer[]> resultList = new ArrayList<>(resultCollection);
-        combineAndVerify(0, n, resultList, n, t);
 
+        ExecutorService verifyExecutorService = new ThreadPoolExecutor(500, 1000, 5, TimeUnit.SECONDS, new SynchronousQueue<>());
+        List<Future<Long[]>> verifyList = new ArrayList<>();
+
+        combineAndVerify(verifyExecutorService, verifyList, 0, n, resultList, n, t);
+        verifyExecutorService.shutdown();
         System.out.println("----------模式组合并验证完毕------------");
+
+        for(Future<Long[]> future : verifyList) {
+            try {
+                Long[] temp = future.get();
+                if(temp != null) {
+                    fit.add(temp);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         if (fit.size() > 0) {
             System.out.println("T = " + t + "时： 共" + fit.size() + "种调度方案");

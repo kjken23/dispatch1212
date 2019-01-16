@@ -1,20 +1,23 @@
 package com.algorithm.dispatch;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * 验证
  *
  * @author kj
  */
-public class Verify {
+public class Verify implements Callable<Long[]> {
     private int n;
     private int t;
+    private List<Integer[]> list;
     private Long[] array;
 
-    public Verify(int n, int t) {
+    public Verify(int n, int t, List<Integer[]> list) {
         this.n = n;
         this.t = t;
+        this.list = list;
         array = new Long[n];
     }
 
@@ -105,7 +108,7 @@ public class Verify {
         return true;
     }
 
-    public Long[] formatAndVerify(List<Integer[]> list) {
+    private Long[] formatAndVerify(List<Integer[]> list) {
         char[][] tempMartix = DispatchUtils.initArray(n, t);
         for (int i = 0, len1 = list.size(); i < len1; i++) {
             int pos = 1;
@@ -125,5 +128,10 @@ public class Verify {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public Long[] call() throws Exception {
+        return this.formatAndVerify(list);
     }
 }
