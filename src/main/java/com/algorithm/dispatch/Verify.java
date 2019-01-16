@@ -25,7 +25,7 @@ public class Verify {
         boolean flag = true;
         for (int i = 0; i < n; i++) {
             int count = 0;
-            Long others = 0L;
+            long others = 0L;
             for (int j = 0; j < n; j++) {
                 if (j == i) {
                     continue;
@@ -34,7 +34,7 @@ public class Verify {
             }
             for (int j = t; j > 0; j--) {
                 long mask = (long) (1 << (j - 1));
-                long result = (arrayList[i] & mask)&((~others) & mask);
+                long result = (arrayList[i] & mask) & ((~others) & mask);
                 if (result > 0L) {
                     count++;
                 }
