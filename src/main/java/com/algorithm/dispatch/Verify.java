@@ -1,6 +1,7 @@
 package com.algorithm.dispatch;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -8,16 +9,16 @@ import java.util.concurrent.Callable;
  *
  * @author kj
  */
-public class Verify implements Callable<Long[]> {
+public class Verify implements Callable<Map.Entry<List<Integer[]>, Boolean>> {
     private int n;
     private int t;
-    private List<Integer[]> list;
+    private Map.Entry<List<Integer[]>, Boolean> map;
     private Long[] array;
 
-    public Verify(int n, int t, List<Integer[]> list) {
+    public Verify(int n, int t, Map.Entry<List<Integer[]>, Boolean> map) {
         this.n = n;
         this.t = t;
-        this.list = list;
+        this.map = map;
         array = new Long[n];
     }
 
@@ -25,9 +26,8 @@ public class Verify implements Callable<Long[]> {
         if (arrayList.length == 0) {
             return false;
         }
-        boolean flag = true;
+        long mask = (long)((2 << t) - 1);
         for (int i = 0; i < n; i++) {
-            int count = 0;
             long others = 0L;
             for (int j = 0; j < n; j++) {
                 if (j == i) {
@@ -35,14 +35,7 @@ public class Verify implements Callable<Long[]> {
                 }
                 others = others | arrayList[j];
             }
-            for (int j = t; j > 0; j--) {
-                long mask = (long) (1 << (j - 1));
-                long result = (arrayList[i] & mask) & ((~others) & mask);
-                if (result > 0L) {
-                    count++;
-                }
-            }
-            if (count < 1) {
+            if(((arrayList[i] & mask) & (~others & mask)) <= 0L) {
                 return false;
             }
         }
@@ -65,10 +58,10 @@ public class Verify implements Callable<Long[]> {
         if (n != arrayList.length - 1) {
             for (int i = 0; i < t + 1; i++) {
                 if (i > 0) {
-                    arrayList = array;
-                    arrayList[n] = DispatchUtils.rotateRight(arrayList[n], i, t);
+                    arrayList[n] = DispatchUtils.rotateRight(arrayList[n], 1, t);
                 }
                 if (i == t) {
+                    arrayList = array;
 //                    System.out.println("完成第" + (n + 1) + "层");
                     break;
                 }
@@ -80,10 +73,10 @@ public class Verify implements Callable<Long[]> {
         } else {
             for (int i = 0; i < t + 1; i++) {
                 if (i > 0) {
-                    arrayList = array;
-                    arrayList[n] = DispatchUtils.rotateRight(arrayList[n], i, t);
+                    arrayList[n] = DispatchUtils.rotateRight(arrayList[n], 1, t);
                 }
                 if (i == t) {
+                    arrayList = array;
 //                    System.out.println("完成最内层");
                     break;
                 }
@@ -108,7 +101,7 @@ public class Verify implements Callable<Long[]> {
         return true;
     }
 
-    private Long[] formatAndVerify(List<Integer[]> list) {
+    private boolean formatAndVerify(List<Integer[]> list) {
         char[][] tempMartix = DispatchUtils.initArray(n, t);
         for (int i = 0, len1 = list.size(); i < len1; i++) {
             int pos = 1;
@@ -122,16 +115,12 @@ public class Verify implements Callable<Long[]> {
         for (int i = 0; i < tempMartix.length; i++) {
             martix[i] = Long.valueOf(String.valueOf(tempMartix[i]), 2);
         }
-        boolean flag = verify(martix, 0);
-        if (flag) {
-            return martix;
-        } else {
-            return null;
-        }
+        return verify(martix, 0);
     }
 
     @Override
-    public Long[] call() throws Exception {
-        return this.formatAndVerify(list);
+    public Map.Entry<List<Integer[]>, Boolean> call() throws Exception {
+        map.setValue(this.formatAndVerify(map.getKey()));
+        return map;
     }
 }

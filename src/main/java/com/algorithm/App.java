@@ -15,16 +15,16 @@ import java.util.concurrent.*;
  */
 public class App {
     private static List<Integer[]> tmpArr = new ArrayList<>();
-    private static List<Long[]> fit = new ArrayList<>();
+    private static List<List<Integer[]>> fit = new ArrayList<>();
+    private static Map<List<Integer[]>, Boolean> combineResult = new ConcurrentHashMap<>();
 
-    private static void combineAndVerify(final ExecutorService executorService, List<Future<Long[]>> futureList, int index, int k, List<Integer[]> arr, int n, int t) {
+    private static void combine(int index, int k, List<Integer[]> arr) {
         if (k == 1) {
             for (int i = index; i < arr.size(); i++) {
                 tmpArr.add(arr.get(i));
                 if (ruleOutImpossible(tmpArr)) {
                     List<Integer[]> tmp = new ArrayList<>(tmpArr);
-                    Verify verify = new Verify(n, t, tmp);
-                    futureList.add(executorService.submit(verify));
+                    combineResult.put(tmp, false);
                 }
                 tmpArr.remove(arr.get(i));
             }
@@ -34,7 +34,7 @@ public class App {
                 tmpArr.add(arr.get(i));
                 //索引右移，内部循环，自然排除已经选择的元素
                 if (ruleOutImpossible(tmpArr)) {
-                    combineAndVerify(executorService, futureList, i + 1, k - 1, arr, n, t);
+                    combine(i + 1, k - 1, arr);
                 }
                 //tmpArr因为是临时存储的，上一个组合找出后就该释放空间，存储下一个元素继续拼接组合了
                 tmpArr.remove(arr.get(i));
@@ -135,23 +135,31 @@ public class App {
         Collection<Integer[]> resultCollection = normalizedResult.values();
         List<Integer[]> resultList = new ArrayList<>(resultCollection);
 
-        ExecutorService verifyExecutorService = new ThreadPoolExecutor(500, 1000, 5, TimeUnit.SECONDS, new SynchronousQueue<>());
-        List<Future<Long[]>> verifyList = new ArrayList<>();
+        //组合模式
+        combine(0, n, resultList);
+        System.out.println("----------模式组合完毕------------");
 
-        combineAndVerify(verifyExecutorService, verifyList, 0, n, resultList, n, t);
-        verifyExecutorService.shutdown();
-        System.out.println("----------模式组合并验证完毕------------");
+        ExecutorService verifyExecutorService = new ThreadPoolExecutor(1000, 2000, 15, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        List<Future<Map.Entry<List<Integer[]>, Boolean>>> verifyList = new ArrayList<>();
 
-        for(Future<Long[]> future : verifyList) {
+        for(Map.Entry<List<Integer[]>, Boolean> entry : combineResult.entrySet()) {
+            Verify verify = new Verify(n, t, entry);
+            verifyList.add(verifyExecutorService.submit(verify));
+        }
+
+        for(Future<Map.Entry<List<Integer[]>, Boolean>> future : verifyList) {
             try {
-                Long[] temp = future.get();
-                if(temp != null) {
-                    fit.add(temp);
+                combineResult.replace(future.get().getKey(), future.get().getValue());
+                if (future.get().getValue()) {
+                    fit.add(future.get().getKey());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
+        verifyExecutorService.shutdown();
+        System.out.println("----------模式验证完毕------------");
 
         if (fit.size() > 0) {
             System.out.println("T = " + t + "时： 共" + fit.size() + "种调度方案");
