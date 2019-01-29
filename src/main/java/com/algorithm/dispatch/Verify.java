@@ -1,5 +1,6 @@
 package com.algorithm.dispatch;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -26,7 +27,7 @@ public class Verify implements Callable<Map.Entry<List<Integer[]>, Boolean>> {
         if (arrayList.length == 0) {
             return false;
         }
-        long mask = (long)((2 << t) - 1);
+        long mask = (long)((1 << t) - 1);
         for (int i = 0; i < n; i++) {
             long others = 0L;
             for (int j = 0; j < n; j++) {
@@ -120,7 +121,15 @@ public class Verify implements Callable<Map.Entry<List<Integer[]>, Boolean>> {
 
     @Override
     public Map.Entry<List<Integer[]>, Boolean> call() throws Exception {
-        map.setValue(this.formatAndVerify(map.getKey()));
+        boolean result = this.formatAndVerify(map.getKey());
+        if(result) {
+            System.out.println("--------找到解了----------");
+            for(Integer[] array : map.getKey()) {
+                System.out.println(Arrays.toString(array));
+            }
+            System.out.println("---------------------------");
+        }
+        map.setValue(result);
         return map;
     }
 }
