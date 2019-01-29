@@ -1,53 +1,54 @@
 package com.algorithm.dispatch;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * 验证
+ *
  * @author kj
  */
-public class Verify {
+public class Verify implements Callable<Map.Entry<List<Integer[]>, Boolean>> {
     private int n;
     private int t;
-    private Integer[][] array;
+    private Map.Entry<List<Integer[]>, Boolean> map;
+    private Long[] array;
 
-    public Verify(int n, int t) {
+    public Verify(int n, int t, Map.Entry<List<Integer[]>, Boolean> map) {
         this.n = n;
         this.t = t;
-        array = new Integer[n][t];
+        this.map = map;
+        array = new Long[n];
     }
 
-    private static boolean judge(Integer[][] arrayList) {
+    private boolean judge(Long[] arrayList) {
         if (arrayList.length == 0) {
             return false;
         }
-        boolean flag = true;
-        for (int i = 0; i < arrayList.length; i++) {
-            int count1 = 0;
-            for (int j = 0; j < arrayList[i].length; j++) {
-                int count2 = 0;
-                for (Integer[] array : arrayList) {
-                    if (array[j] == 1) {
-                        count2++;
-                    }
+        long mask = (long)((1 << t) - 1);
+        for (int i = 0; i < n; i++) {
+            long others = 0L;
+            for (int j = 0; j < n; j++) {
+                if (j == i) {
+                    continue;
                 }
-                if (count2 == 1 && arrayList[i][j] == 1) {
-                    count1++;
-                }
+                others = others | arrayList[j];
             }
-            if (count1 < 1) {
+            if(((arrayList[i] & mask) & (~others & mask)) <= 0L) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean verify(Integer[][] arrayList, int n) {
+    private boolean verify(Long[] arrayList, int n) {
         if (arrayList.length == 0) {
             return false;
         }
         if (n == 0) {
-            DispatchUtils.deepCopy(arrayList, array);
+            array = arrayList.clone();
 //            System.out.println("当前验证调度方案：");
 //            for (Integer[] a : arrayList) {
 //                System.out.println(Arrays.toString(a));
@@ -56,12 +57,12 @@ public class Verify {
         }
         boolean flag = true;
         if (n != arrayList.length - 1) {
-            for (int i = 0; i < arrayList[0].length + 1; i++) {
+            for (int i = 0; i < t + 1; i++) {
                 if (i > 0) {
-                    arrayList = array;
-                    arrayList[n] = DispatchUtils.moveArrayElement(arrayList[n], i);
+                    arrayList[n] = DispatchUtils.rotateRight(arrayList[n], 1, t);
                 }
-                if (i == arrayList[0].length) {
+                if (i == t) {
+                    arrayList = array;
 //                    System.out.println("完成第" + (n + 1) + "层");
                     break;
                 }
@@ -71,12 +72,12 @@ public class Verify {
                 }
             }
         } else {
-            for (int i = 0; i < arrayList[0].length + 1; i++) {
+            for (int i = 0; i < t + 1; i++) {
                 if (i > 0) {
-                    arrayList = array;
-                    arrayList[n] = DispatchUtils.moveArrayElement(arrayList[n], i);
+                    arrayList[n] = DispatchUtils.rotateRight(arrayList[n], 1, t);
                 }
-                if (i == arrayList[0].length) {
+                if (i == t) {
+                    arrayList = array;
 //                    System.out.println("完成最内层");
                     break;
                 }
@@ -101,21 +102,34 @@ public class Verify {
         return true;
     }
 
-    public List<Integer[]> formatAndVerify(List<Integer[]> list) {
-        Integer[][] martix = DispatchUtils.initArray(n,t);
+    private boolean formatAndVerify(List<Integer[]> list) {
+        char[][] tempMartix = DispatchUtils.initArray(n, t);
         for (int i = 0, len1 = list.size(); i < len1; i++) {
             int pos = 1;
-            for(Integer integer : list.get(i)) {
+            for (Integer integer : list.get(i)) {
                 pos += integer;
-                martix[i][pos % t] = 1;
+                tempMartix[i][pos % t] = '1';
                 pos++;
             }
         }
-        boolean flag = verify(martix, 0);
-        if (flag) {
-            return list;
-        } else {
-            return null;
+        Long[] martix = new Long[n];
+        for (int i = 0; i < tempMartix.length; i++) {
+            martix[i] = Long.valueOf(String.valueOf(tempMartix[i]), 2);
         }
+        return verify(martix, 0);
+    }
+
+    @Override
+    public Map.Entry<List<Integer[]>, Boolean> call() throws Exception {
+        boolean result = this.formatAndVerify(map.getKey());
+        if(result) {
+            System.out.println("--------找到解了----------");
+            for(Integer[] array : map.getKey()) {
+                System.out.println(Arrays.toString(array));
+            }
+            System.out.println("---------------------------");
+        }
+        map.setValue(result);
+        return map;
     }
 }
